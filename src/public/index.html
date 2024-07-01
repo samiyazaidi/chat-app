@@ -1,0 +1,71 @@
+<!-- npm install -g http-server -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket Client</title>
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+  <h1>WebSocket Client</h1>
+  <div>
+    <input type="text" id="message" placeholder="Enter message">
+    <button onclick="sendMessage()">Send Message</button>
+  </div>
+  <div id="messages"></div>
+  
+  <script>
+    const socket = io('http://localhost:3001');
+
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+    socket.on('you-have-connected', (data) => {
+      addMessage(data.message);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from WebSocket server');
+    });
+    socket.on('message', (data) => {
+      addMessage(`${data.sender}: ${data.content}`);
+    });
+
+    socket.on('reply', (data) => {
+      const messagesDiv = document.getElementById('messages');
+      const messageElement = document.createElement('div');
+      messageElement.textContent = data;
+      messagesDiv.appendChild(messageElement);
+    });
+
+    socket.on('user-joined', (data) => {
+      const messagesDiv = document.getElementById('messages');
+      const messageElement = document.createElement('div');
+      messageElement.textContent = data.message;
+      messagesDiv.appendChild(messageElement);
+    });
+
+    socket.on('user-left', (data) => {
+      const messagesDiv = document.getElementById('messages');
+      const messageElement = document.createElement('div');
+      messageElement.textContent = data.message;
+      messagesDiv.appendChild(messageElement);
+    });
+
+    function sendMessage() {
+      const messageInput = document.getElementById('message');
+      const message = messageInput.value;
+      socket.emit('events', message);
+      messageInput.value = '';
+    }
+    function addMessage(message) {
+      const messagesDiv = document.getElementById('messages');
+      const messageElement = document.createElement('div');
+      messageElement.textContent = message;
+      messagesDiv.appendChild(messageElement);
+    }
+  </script>
+</body>
+</html>
